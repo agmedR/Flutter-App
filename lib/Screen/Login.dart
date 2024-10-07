@@ -16,7 +16,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Future<void> checkEmailVerified() async {
     User? user = FirebaseAuth.instance.currentUser;
-    await user?.reload(); // تحديث حالة المستخدم
+    await user?.reload();
 
     if (user != null && user.emailVerified) {
       print('Email has been verified.');
@@ -57,7 +57,7 @@ class _LoginScreenState extends State<LoginScreen> {
       );
     } finally {
       setState(() {
-        _isLoading = false; // إيقاف التحميل
+        _isLoading = false;
       });
     }
   }
@@ -132,8 +132,8 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
                   SizedBox(height: 24),
-                  if (_isLoading) // إذا كان التحميل جاريًا
-                    CircularProgressIndicator() // عرض علامة التحميل
+                  if (_isLoading)
+                    CircularProgressIndicator()
                   else
                     ElevatedButton(
                       child: Text('Login'),

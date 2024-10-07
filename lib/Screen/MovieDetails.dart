@@ -184,14 +184,12 @@ class _MovieDetailsPageState extends State<MovieDetailsPage> with SingleTickerPr
                 watchedProvider.isWatched(movieDetails!) ? 'Watched' : 'Watch',
                     () {
                   if (widget.isGuest) {
-                    // عرض Snackbar إذا كان المستخدم في وضع الضيف
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                         content: Text("You're in Guest mode. Please sign up to add movies to your Watched list."),
                         action: SnackBarAction(
                           label: 'Sign Up',
                           onPressed: () {
-                            // الانتقال إلى صفحة التسجيل
                             Navigator.push(
                               context,
                               MaterialPageRoute(builder: (context) => SignUpScreen()),
@@ -201,7 +199,6 @@ class _MovieDetailsPageState extends State<MovieDetailsPage> with SingleTickerPr
                       ),
                     );
                   } else {
-                    // تنفيذ الإجراء الأصلي إذا كان المستخدم مسجل دخول
                     if (watchedProvider.isWatched(movieDetails!)) {
                       watchedProvider.removeWatched(movieDetails!.id);
                     } else {

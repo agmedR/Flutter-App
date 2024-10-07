@@ -42,7 +42,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
       await ref.putFile(File(_profileImage!.path));
       final url = await ref.getDownloadURL();
-      return url; // رابط الصورة
+      return url;
     } catch (e) {
       print('Error uploading image: $e');
       return null;
@@ -113,7 +113,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
       );
     } finally{
       setState(() {
-        _isLoading = false; // إيقاف التحميل
+        _isLoading = false;
       });
     }
   }
@@ -152,12 +152,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   ),
                   SizedBox(height: 48),
                   GestureDetector(
-                    onTap: _pickImage, // استدعاء وظيفة تحميل الصورة عند النقر
+                    onTap: _pickImage,
                     child: CircleAvatar(
                       radius: 50,
                       backgroundImage: _profileImage != null
                           ? FileImage(File(_profileImage!.path))
-                          : NetworkImage('https://via.placeholder.com/150') as ImageProvider, // صورة افتراضية
+                          : NetworkImage('https://via.placeholder.com/150') as ImageProvider,
                       child: _profileImage == null
                           ? Icon(
                         Icons.camera_alt,
@@ -226,8 +226,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     ),
                   ),
                   SizedBox(height: 24),
-                  if (_isLoading) // إذا كان التحميل جاريًا
-                    CircularProgressIndicator() // عرض علامة التحميل
+                  if (_isLoading)
+                    CircularProgressIndicator()
                   else
                   ElevatedButton(
                     child: Text('Sign Up'),

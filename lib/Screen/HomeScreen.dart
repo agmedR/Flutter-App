@@ -59,7 +59,6 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             );
           } else {
-            // إذا كان المستخدم مسجل دخول، يتم فتح صفحة المستخدم
             Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => UserPage()),

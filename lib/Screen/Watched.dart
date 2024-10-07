@@ -14,25 +14,6 @@ class WatcedPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('My Watched'),
-/*
-        actions: [
-          PopupMenuButton<String>(
-            onSelected: (value) {
-              // التعامل مع خيارات الفرز والتصفية
-            },
-            itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-              const PopupMenuItem<String>(
-                value: 'date',
-                child: Text('Filter by: Date Added'),
-              ),
-              const PopupMenuItem<String>(
-                value: 'name',
-                child: Text('Filter by: Name'),
-              ),
-            ],
-          ),
-        ],
-*/
       ),
       body: Consumer<WatchedProvider>(
         builder: (context, watchedProvider, child) {
