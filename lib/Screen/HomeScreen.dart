@@ -1,6 +1,7 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:movie_app3/Screen/User.dart';
+import 'package:movie_app3/Services/NetworkService.dart';
 import '../Model/model.dart';
 import '../Services/services.dart';
 import 'MovieDetails.dart';
@@ -71,294 +72,311 @@ class _HomeScreenState extends State<HomeScreen> {
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(8),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                "  Now Showing",
-                style: TextStyle(
-                  fontWeight: FontWeight.normal,
-                  fontSize: 18,
-                  color: Colors.black,
+          child: ConnectivityHandler(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  "  Now Showing",
+                  style: TextStyle(
+                    fontWeight: FontWeight.normal,
+                    fontSize: 18,
+                    color: Colors.black,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 10),
-              FutureBuilder(
-                future: nowShowing,
-                builder: (context, snapshot) {
-                  if (!snapshot.hasData) {
-                    return const Center(
-                      child: CircularProgressIndicator(),
+                const SizedBox(height: 10),
+                FutureBuilder(
+                  future: nowShowing,
+                  builder: (context, snapshot) {
+                    if (!snapshot.hasData) {
+                      return const Center(
+                        child: CircularProgressIndicator(),
+                      );
+                    }
+                    final movies = snapshot.data!;
+                    return CarouselSlider.builder(
+                      itemCount: movies.length,
+                      itemBuilder: (context, index, movieIndex) {
+                        final movie = movies[index];
+                        return Stack(
+                          children: [
+                            GestureDetector(
+                              onTap:(){
+                                Navigator.push(context, MaterialPageRoute(builder: (context)=>MovieDetailsPage(movie: movie,isGuest: widget.isGuest,),
+                                ),
+                                ).then((_){
+                                  setState(() {});
+                                });
+                              },
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(20),
+                                  image: DecorationImage(
+                                    image: NetworkImage(
+                                      "https://image.tmdb.org/t/p/original${movie.backdrop_path}",
+                                    ),
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Positioned(
+                              bottom: 15,
+                              left: 0,
+                              right: 0,
+                              child: Text(
+                                movie.title,
+                                textAlign: TextAlign.center,
+                                maxLines: 1,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 18,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            )
+                          ],
+                        );
+                      },
+                      options: CarouselOptions(
+                        autoPlay: true,
+                        enlargeCenterPage: true,
+                        aspectRatio: 1.7,
+                        autoPlayInterval: const Duration(seconds: 5),
+                      ),
                     );
-                  }
-                  final movies = snapshot.data!;
-                  return CarouselSlider.builder(
-                    itemCount: movies.length,
-                    itemBuilder: (context, index, movieIndex) {
-                      final movie = movies[index];
-                      return Stack(
-                        children: [
-                          GestureDetector(
-                            onTap:(){
-                              Navigator.push(context, MaterialPageRoute(builder: (context)=>MovieDetailsPage(movie: movie,isGuest: widget.isGuest,),
-                              ),
-                              ).then((_){
-                                setState(() {});
-                              });
-                            },
-                            child: Container(
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(20),
-                                image: DecorationImage(
-                                  image: NetworkImage(
-                                    "https://image.tmdb.org/t/p/original${movie.backdrop_path}",
+                  },
+                ),
+                const SizedBox(height: 20),
+                const Text(
+                  "  Up Coming Movies",
+                  style: TextStyle(
+                    fontWeight: FontWeight.normal,
+                    fontSize: 18,
+                    color: Colors.black,
+                  ),
+                ),
+                Container(
+                  margin: EdgeInsets.symmetric(vertical: 10),
+                  height: 250,
+                  child: FutureBuilder(
+                    future: upComing,
+                    builder: (context, snapshot) {
+                      if (!snapshot.hasData) {
+                        return const Center(
+                          child: CircularProgressIndicator(),
+                        );
+                      }
+                      final movies = snapshot.data!;
+                      return ListView.builder(
+                          scrollDirection: Axis.horizontal,
+                          itemCount: movies.length,
+                          itemBuilder: (context, index) {
+                            final movie = movies[index];
+                            return Stack(
+                              children: [
+                                GestureDetector(
+                                  onTap:(){
+                                    Navigator.push(context, MaterialPageRoute(builder: (context)=>MovieDetailsPage(movie: movie,isGuest: widget.isGuest),
+                                    ),
+                                    ).then((_){
+                                      setState(() {});
+                                    });
+                                  },
+                                  child: Container(
+                                    width: 180,
+                                    margin: const EdgeInsets.symmetric(horizontal: 10),
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(20),
+                                      image: DecorationImage(
+                                        image: NetworkImage(
+                                            "https://image.tmdb.org/t/p/original${movie.backdrop_path}"),
+                                        fit: BoxFit.cover,
+                                      ),
+                                    ),
                                   ),
-                                  fit: BoxFit.cover,
                                 ),
-                              ),
-                            ),
-                          ),
-                          Positioned(
-                            bottom: 15,
-                            left: 0,
-                            right: 0,
-                            child: Text(
-                              movie.title,
-                              textAlign: TextAlign.center,
-                              maxLines: 1,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 18,
-                                color: Colors.white,
-                              ),
-                            ),
-                          )
-                        ],
-                      );
+                                Positioned(
+                                  bottom: 15,
+                                  left: 0,
+                                  right: 0,
+                                  child: Text(
+                                    movie.title,
+                                    textAlign: TextAlign.center,
+                                    maxLines: 1,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                )
+                              ],
+                            );
+                          });
                     },
-                    options: CarouselOptions(
-                      autoPlay: true,
-                      enlargeCenterPage: true,
-                      aspectRatio: 1.7,
-                      autoPlayInterval: const Duration(seconds: 5),
-                    ),
-                  );
-                },
-              ),
-              const SizedBox(height: 20),
-              const Text(
-                "  Up Coming Movies",
-                style: TextStyle(
-                  fontWeight: FontWeight.normal,
-                  fontSize: 18,
-                  color: Colors.black,
+                  ),
                 ),
-              ),
-              Container(
-                margin: EdgeInsets.symmetric(vertical: 10),
-                height: 250,
-                child: FutureBuilder(
-                  future: upComing,
-                  builder: (context, snapshot) {
-                    if (!snapshot.hasData) {
-                      return const Center(
-                        child: CircularProgressIndicator(),
-                      );
-                    }
-                    final movies = snapshot.data!;
-                    return ListView.builder(
-                        scrollDirection: Axis.horizontal,
-                        itemCount: movies.length,
-                        itemBuilder: (context, index) {
-                          final movie = movies[index];
-                          return Stack(
-                            children: [
-                              GestureDetector(
-                                onTap:(){
-                                  Navigator.push(context, MaterialPageRoute(builder: (context)=>MovieDetailsPage(movie: movie,isGuest: widget.isGuest),
-                                  ),
-                                  ).then((_){
-                                    setState(() {});
-                                  });
-                                },
-                                child: Container(
-                                  width: 180,
-                                  margin: const EdgeInsets.symmetric(horizontal: 10),
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(20),
-                                    image: DecorationImage(
-                                      image: NetworkImage(
-                                          "https://image.tmdb.org/t/p/original${movie.backdrop_path}"),
-                                      fit: BoxFit.cover,
+                const SizedBox(height: 10),
+                const Text(
+                  "  Popular Movies",
+                  style: TextStyle(
+                    fontWeight: FontWeight.normal,
+                    fontSize: 18,
+                    color: Colors.black,
+                  ),
+                ),
+                Container(
+                  margin: const EdgeInsets.symmetric(vertical: 10),
+                  height: 250,
+                  child: FutureBuilder(
+                    future: popularMovies,
+                    builder: (context, snapshot) {
+                      if (!snapshot.hasData) {
+                        return const Center(
+                          child: CircularProgressIndicator(),
+                        );
+                      }
+                      final movies = snapshot.data!;
+                      return ListView.builder(
+                          scrollDirection: Axis.horizontal,
+                          itemCount: movies.length,
+                          itemBuilder: (context, index) {
+                            final movie = movies[index];
+                            return Stack(
+                              children: [
+                                GestureDetector(
+                                  onTap:(){
+                                    Navigator.push(context, MaterialPageRoute(builder: (context)=>MovieDetailsPage(movie: movie,isGuest: widget.isGuest),
+                                    ),
+                                    ).then((_){
+                                      setState(() {});
+                                    });
+                                  },
+                                  child: Container(
+                                    width: 180,
+                                    margin:
+                                    const EdgeInsets.symmetric(horizontal: 10),
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(20),
+                                      image: DecorationImage(
+                                        image: NetworkImage(
+                                            "https://image.tmdb.org/t/p/original${movie.backdrop_path}"),
+                                        fit: BoxFit.cover,
+                                      ),
                                     ),
                                   ),
                                 ),
-                              ),
-                              Positioned(
-                                bottom: 15,
-                                left: 0,
-                                right: 0,
-                                child: Text(
-                                  movie.title,
-                                  textAlign: TextAlign.center,
-                                  maxLines: 1,
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16,
-                                    color: Colors.white,
+                                Positioned(
+                                  bottom: 15,
+                                  left: 0,
+                                  right: 0,
+                                  child: Text(
+                                    movie.title,
+                                    textAlign: TextAlign.center,
+                                    maxLines: 1,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16,
+                                      color: Colors.white,
+                                    ),
                                   ),
-                                ),
-                              )
-                            ],
-                          );
-                        });
-                  },
+                                )
+                              ],
+                            );
+                          });
+                    },
+                  ),
                 ),
-              ),
-              const SizedBox(height: 10),
-              const Text(
-                "  Popular Movies",
-                style: TextStyle(
-                  fontWeight: FontWeight.normal,
-                  fontSize: 18,
-                  color: Colors.black,
+                const SizedBox(height: 10),
+                const Text(
+                  "  Top Rated Movies",
+                  style: TextStyle(
+                    fontWeight: FontWeight.normal,
+                    fontSize: 18,
+                    color: Colors.black,
+                  ),
                 ),
-              ),
-              Container(
-                margin: const EdgeInsets.symmetric(vertical: 10),
-                height: 250,
-                child: FutureBuilder(
-                  future: popularMovies,
-                  builder: (context, snapshot) {
-                    if (!snapshot.hasData) {
-                      return const Center(
-                        child: CircularProgressIndicator(),
-                      );
-                    }
-                    final movies = snapshot.data!;
-                    return ListView.builder(
-                        scrollDirection: Axis.horizontal,
-                        itemCount: movies.length,
-                        itemBuilder: (context, index) {
-                          final movie = movies[index];
-                          return Stack(
-                            children: [
-                              GestureDetector(
-                                onTap:(){
-                                  Navigator.push(context, MaterialPageRoute(builder: (context)=>MovieDetailsPage(movie: movie,isGuest: widget.isGuest),
-                                  ),
-                                  ).then((_){
-                                    setState(() {});
-                                  });
-                                },
-                                child: Container(
-                                  width: 180,
-                                  margin:
-                                  const EdgeInsets.symmetric(horizontal: 10),
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(20),
-                                    image: DecorationImage(
-                                      image: NetworkImage(
-                                          "https://image.tmdb.org/t/p/original${movie.backdrop_path}"),
-                                      fit: BoxFit.cover,
+                Container(
+                  margin: const EdgeInsets.symmetric(vertical: 10),
+                  height: 250,
+                  child: FutureBuilder(
+                    future: topratedMovies,
+                    builder: (context, snapshot) {
+                      if (!snapshot.hasData) {
+                        return const Center(
+                          child: CircularProgressIndicator(),
+                        );
+                      }
+                      final movies = snapshot.data!;
+                      return ListView.builder(
+                          scrollDirection: Axis.horizontal,
+                          itemCount: movies.length,
+                          itemBuilder: (context, index) {
+                            final movie = movies[index];
+                            return Stack(
+                              children: [
+                                GestureDetector(
+                                  onTap:(){
+                                    Navigator.push(context, MaterialPageRoute(builder: (context)=>MovieDetailsPage(movie: movie,isGuest: widget.isGuest),
+                                    ),
+                                    ).then((_){
+                                      setState(() {});
+                                    });
+                                  },
+                                  child: Container(
+                                    width: 180,
+                                    margin:
+                                    const EdgeInsets.symmetric(horizontal: 10),
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(20),
+                                      image: DecorationImage(
+                                        image: NetworkImage(
+                                            "https://image.tmdb.org/t/p/original${movie.backdrop_path}"),
+                                        fit: BoxFit.cover,
+                                      ),
                                     ),
                                   ),
                                 ),
-                              ),
-                              Positioned(
-                                bottom: 15,
-                                left: 0,
-                                right: 0,
-                                child: Text(
-                                  movie.title,
-                                  textAlign: TextAlign.center,
-                                  maxLines: 1,
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              )
-                            ],
-                          );
-                        });
-                  },
-                ),
-              ),
-              const SizedBox(height: 10),
-              const Text(
-                "  Top Rated Movies",
-                style: TextStyle(
-                  fontWeight: FontWeight.normal,
-                  fontSize: 18,
-                  color: Colors.black,
-                ),
-              ),
-              Container(
-                margin: const EdgeInsets.symmetric(vertical: 10),
-                height: 250,
-                child: FutureBuilder(
-                  future: topratedMovies,
-                  builder: (context, snapshot) {
-                    if (!snapshot.hasData) {
-                      return const Center(
-                        child: CircularProgressIndicator(),
-                      );
-                    }
-                    final movies = snapshot.data!;
-                    return ListView.builder(
-                        scrollDirection: Axis.horizontal,
-                        itemCount: movies.length,
-                        itemBuilder: (context, index) {
-                          final movie = movies[index];
-                          return Stack(
-                            children: [
-                              GestureDetector(
-                                onTap:(){
-                                  Navigator.push(context, MaterialPageRoute(builder: (context)=>MovieDetailsPage(movie: movie,isGuest: widget.isGuest),
-                                  ),
-                                  ).then((_){
-                                    setState(() {});
-                                  });
-                                },
-                                child: Container(
-                                  width: 180,
-                                  margin:
-                                  const EdgeInsets.symmetric(horizontal: 10),
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(20),
-                                    image: DecorationImage(
-                                      image: NetworkImage(
-                                          "https://image.tmdb.org/t/p/original${movie.backdrop_path}"),
-                                      fit: BoxFit.cover,
+                                Positioned(
+                                  bottom: 15,
+                                  left: 0,
+                                  right: 0,
+                                  child: Text(
+                                    movie.title,
+                                    textAlign: TextAlign.center,
+                                    maxLines: 1,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16,
+                                      color: Colors.white,
                                     ),
                                   ),
-                                ),
-                              ),
-                              Positioned(
-                                bottom: 15,
-                                left: 0,
-                                right: 0,
-                                child: Text(
-                                  movie.title,
-                                  textAlign: TextAlign.center,
-                                  maxLines: 1,
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              )
-                            ],
-                          );
-                        });
-                  },
+                                )
+                              ],
+                            );
+                          });
+                    },
+                  ),
                 ),
-              ),
 
-            ],
+              ],
+            ),
+            noConnectionWidget: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.signal_wifi_off, size: 64, color: Colors.grey),
+                  SizedBox(height: 16),
+                  Text(
+                    'No internet connection',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  SizedBox(height: 8),
+                  Text('Please check your connection and try again'),
+                ],
+              ),
+            ),
           ),
         ),
       ),

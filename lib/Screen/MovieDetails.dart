@@ -5,9 +5,9 @@ import '../Provider/WatchedProvider.dart';
 import '../Provider/WatchlistProvider.dart';
 import '../Model/model.dart';
 import 'package:intl/intl.dart';
+import '../Services/NetworkService.dart';
 import '../Services/services.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
-
 import 'SignUp.dart';
 
 
@@ -57,23 +57,52 @@ class _MovieDetailsPageState extends State<MovieDetailsPage> with SingleTickerPr
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Movie Details'),
-        elevation: 0,
+    return ConnectivityHandler(
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text('Movie Details'),
+          elevation: 0,
+        ),
+        backgroundColor: Colors.black,
+        body: isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildHeader(),
+              if (trailerKey != null) _buildTrailer(),
+              _buildTabBar(),
+              _buildTabBarView(),
+            ],
+          ),
+        ),
       ),
-      backgroundColor: Colors.black,
-      body: isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildHeader(),
-            if (trailerKey != null) _buildTrailer(),
-            _buildTabBar(),
-            _buildTabBarView(),
-          ],
+      noConnectionWidget: Scaffold(
+        appBar: AppBar(
+          title: Text('Movie Details'),
+          elevation: 0,
+        ),
+        backgroundColor: Colors.black,
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.signal_wifi_off, size: 64, color: Colors.grey),
+              SizedBox(height: 16),
+              Text(
+                'No internet connection',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+              ),
+              SizedBox(height: 8),
+              Text('Please check your connection and try again', style: TextStyle(color: Colors.white)),
+              SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: _fetchMovieData,
+                child: Text('Retry'),
+              ),
+            ],
+          ),
         ),
       ),
     );
