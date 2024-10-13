@@ -96,11 +96,6 @@ class _MovieDetailsPageState extends State<MovieDetailsPage> with SingleTickerPr
               ),
               SizedBox(height: 8),
               Text('Please check your connection and try again', style: TextStyle(color: Colors.white)),
-              SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: _fetchMovieData,
-                child: Text('Retry'),
-              ),
             ],
           ),
         ),
@@ -202,39 +197,22 @@ class _MovieDetailsPageState extends State<MovieDetailsPage> with SingleTickerPr
   }
 
   Widget _buildActionButtons() {
-    return Consumer3<WatchedProvider, WatchlistProvider, FavoritesProvider>(
-      builder: (context, watchedProvider, watchlistProvider, favoritesProvider, child) {
+    return Consumer3<WatchlistProvider, FavoritesProvider, WatchedProvider>(
+      builder: (context, watchlistProvider, favoritesProvider, watchedProvider, child) {
         return SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           child: Row(
             children: [
               _buildActionButton(
                 Icons.visibility,
-                watchedProvider.isWatched(movieDetails!) ? 'Watched' : 'Watch',
+                watchedProvider.isWatched(movieDetails!) ? 'Watched' : 'Mark as Watched',
                     () {
                   if (widget.isGuest) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text("You're in Guest mode. Please sign up to add movies to your Watched list."),
-                        action: SnackBarAction(
-                          label: 'Sign Up',
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context) => SignUpScreen()),
-                            );
-                          },
-                        ),
-                      ),
-                    );
+                    _showGuestModeSnackBar(context, 'Watched list');
                   } else {
-                    if (watchedProvider.isWatched(movieDetails!)) {
-                      watchedProvider.removeWatched(movieDetails!.id);
-                    } else {
-                      watchedProvider.addWatched(movieDetails!);
-                      if (watchlistProvider.isInWatchlist(movieDetails!)) {
-                        watchlistProvider.removeFromWatchlist(movieDetails!.id);
-                      }
+                    watchedProvider.toggleWatched(movieDetails!);
+                    if (watchlistProvider.isInWatchlist(movieDetails!)) {
+                      watchlistProvider.removeFromWatchlist(movieDetails!.id);
                     }
                   }
                 },
@@ -245,20 +223,7 @@ class _MovieDetailsPageState extends State<MovieDetailsPage> with SingleTickerPr
                 favoritesProvider.isFavorite(movieDetails!) ? 'Favorited' : 'Favorite',
                     () {
                   if (widget.isGuest) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text("You're in Guest mode. Please sign up to add movies to your Favorites."),
-                        action: SnackBarAction(
-                          label: 'Sign Up',
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context) => SignUpScreen()),
-                            );
-                          },
-                        ),
-                      ),
-                    );
+                    _showGuestModeSnackBar(context, 'Favorites');
                   } else {
                     if (favoritesProvider.isFavorite(movieDetails!)) {
                       favoritesProvider.removeFavorite(movieDetails!.id);
@@ -271,23 +236,10 @@ class _MovieDetailsPageState extends State<MovieDetailsPage> with SingleTickerPr
               const SizedBox(width: 8),
               _buildActionButton(
                 Icons.add,
-                watchlistProvider.isInWatchlist(movieDetails!) ? 'In Watchlist' : 'Watchlist',
+                watchlistProvider.isInWatchlist(movieDetails!) ? 'In Watchlist' : 'Add to Watchlist',
                     () {
                   if (widget.isGuest) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text("You're in Guest mode. Please sign up to add movies to your Watchlist."),
-                        action: SnackBarAction(
-                          label: 'Sign Up',
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context) => SignUpScreen()),
-                            );
-                          },
-                        ),
-                      ),
-                    );
+                    _showGuestModeSnackBar(context, 'Watchlist');
                   } else {
                     if (watchlistProvider.isInWatchlist(movieDetails!)) {
                       watchlistProvider.removeFromWatchlist(movieDetails!.id);
@@ -304,6 +256,23 @@ class _MovieDetailsPageState extends State<MovieDetailsPage> with SingleTickerPr
           ),
         );
       },
+    );
+  }
+
+  void _showGuestModeSnackBar(BuildContext context, String feature) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text("You're in Guest mode. Please sign up to add movies to your $feature."),
+        action: SnackBarAction(
+          label: 'Sign Up',
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => SignUpScreen()),
+            );
+          },
+        ),
+      ),
     );
   }
 
@@ -330,7 +299,6 @@ class _MovieDetailsPageState extends State<MovieDetailsPage> with SingleTickerPr
       ],
     );
   }
-
 
   Widget _buildDetailsTab() {
     return Padding(
@@ -400,6 +368,7 @@ class _MovieDetailsPageState extends State<MovieDetailsPage> with SingleTickerPr
       ],
     );
   }
+
   Widget _buildReviewsTab() {
     return ListView.builder(
       itemCount: reviews.length,
